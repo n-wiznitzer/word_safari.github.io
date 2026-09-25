@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Word Safari</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700&display=swap');
+
+  :root {
+    --jungle: #0F3D3E;
+    --jungle-deep: #0A2C2D;
+    --mango: #F2A93B;
+    --coral: #E8604C;
+    --cream: #FBF6EC;
+    --leaf: #4C9A6A;
+    --sky: #3B82C4;
+    --ink: #123332;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--jungle-deep);
+    font-family: 'Nunito', sans-serif;
+    color: var(--cream);
+    overscroll-behavior: none;
+  }
+
+  #app {
+    max-width: 420px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(76,154,106,0.35), transparent 55%),
+      radial-gradient(circle at 90% 100%, rgba(232,96,76,0.18), transparent 50%),
+      var(--jungle);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header {
+    padding: 16px 18px 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .level-tag {
+    padding: 0 18px 8px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(251,246,236,0.55);
+  }
+
+  .brand {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 19px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .brand .mark {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    background: var(--mango);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--mango);
+    border-radius: 999px;
+    transition: width 0.5s ease;
+  }
+
+  .collection-btn {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    background: rgba(255,255,255,0.1);
+    color: var(--cream);
+    border: none;
+    padding: 7px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+  }
+
+  .screen { width: 100%; display: none; flex-direction: column; align-items: center; animation: rise 0.4s ease; }
+  .screen.active { display: flex; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+  .task-label { font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 600; color: var(--mango); margin-bottom: 14px; text-align: center; }
+  .tap-word-label { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 34px; color: var(--cream); margin-bottom: 20px; text-align: center; letter-spacing: 0.5px; }
+  .review-tag { font-size: 11px; font-weight: 700; background: var(--sky); color: white; padding: 3px 9px; border-radius: 999px; margin-bottom: 10px; font-family: 'Baloo 2', sans-serif; }
+
+  .visual-stage { width: 150px; height: 150px; border-radius: 28px; background: var(--cream); display: flex; align-items: center; justify-content: center; margin-bottom: 22px; box-shadow: 0 10px 0 rgba(0,0,0,0.18); overflow: hidden; }
+  .emoji-fill { font-size: 70px; }
+  .shape-fill { border-radius: 50%; background: var(--ink); }
+  .swatch-fill { width: 90px; height: 90px; border-radius: 16px; border: 2px solid rgba(0,0,0,0.12); }
+
+  .collection-slot .swatch-fill, .collection-slot .shape-fill {
+    width: 30px !important; height: 30px !important; border-radius: 8px !important;
+  }
+
+  .choice-grid, .listen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+  .choice-btn, .listen-card { border: none; border-radius: 16px; cursor: pointer; box-shadow: 0 5px 0 #D8CFB8; background: var(--cream); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 8px; }
+  .choice-btn:active, .listen-card:active { transform: translateY(3px); box-shadow: 0 2px 0 #D8CFB8; }
+  .choice-btn.correct, .listen-card.correct { background: var(--leaf); box-shadow: 0 5px 0 #367750; }
+  .choice-btn.wrong, .listen-card.wrong { background: var(--coral); box-shadow: 0 5px 0 #B94636; }
+  .opt-emoji { font-size: 38px; }
+  .opt-shape { border-radius: 50%; background: var(--ink); }
+  .choice-btn.correct .opt-shape, .choice-btn.wrong .opt-shape,
+  .listen-card.correct .opt-shape, .listen-card.wrong .opt-shape { background: white; }
+  .opt-swatch { width: 44px; height: 44px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.12); }
+  .opt-caption { font-family: 'Baloo 2', sans-serif; font-weight: 600; color: var(--ink); font-size: 12px; text-transform: capitalize; }
+  .choice-btn.correct .opt-caption, .choice-btn.wrong .opt-caption,
+  .listen-card.correct .opt-caption, .listen-card.wrong .opt-caption { color: white; }
+
+  .spell-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+  .letter-box { width: 40px; height: 50px; border-radius: 12px; background: var(--cream); color: var(--ink); font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 22px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; }
+  .letter-box.filled { background: var(--mango); }
+  .letter-box.empty { background: rgba(255,255,255,0.14); color: transparent; }
+
+  .key-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; max-width: 330px; }
+  .key-btn { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 17px; color: var(--ink); background: var(--cream); border: none; border-radius: 10px; padding: 13px 0; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 0 #D8CFB8; }
+  .key-btn:active { transform: translateY(3px); box-shadow: none; }
+  .key-btn:disabled { opacity: 0.35; }
+
+  .speaker-btn { width: 92px; height: 92px; border-radius: 50%; background: var(--mango); border: none; display: flex; align-items: center; justify-content: center; font-size: 38px; cursor: pointer; box-shadow: 0 6px 0 #C4841E; margin-bottom: 26px; }
+  .speaker-btn:active { transform: translateY(4px); box-shadow: none; }
+
+  .sentence-box { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 21px; color: var(--cream); text-align: center; margin-bottom: 22px; line-height: 1.4; max-width: 300px; }
+  .sentence-blank { display: inline-block; min-width: 54px; border-bottom: 3px solid var(--mango); }
+  .sentence-blank.filled { color: var(--mango); border-bottom-color: transparent; }
+  .sentence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+
+  .trace-row { display: flex; gap: 6px; touch-action: none; user-select: none; margin-bottom: 22px; flex-wrap: wrap; justify-content: center; }
+  .trace-letter {
+    width: 42px; height: 56px; border-radius: 12px;
+    border: 3px dashed rgba(251,246,236,0.35);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 24px;
+    color: rgba(251,246,236,0.35);
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+  }
+  .trace-letter.traced { border: 3px solid var(--mango); color: var(--mango); background: rgba(242,169,59,0.12); transform: scale(1.05); }
+  .trace-hint { font-size: 13px; color: rgba(251,246,236,0.6); margin-bottom: 10px; text-align: center; }
+
+  .dots-row { display: flex; gap: 10px; margin-bottom: 20px; }
+  .rep-dot { width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+  .rep-dot.filled { background: var(--mango); }
+
+  .reward-screen { text-align: center; }
+  .reward-burst { width: 190px; height: 190px; border-radius: 50%; background: radial-gradient(circle, var(--mango) 0%, transparent 70%); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; animation: pop 0.6s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes pop { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .reward-title { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 26px; color: var(--mango); margin: 6px 0 2px; }
+  .reward-sub { font-size: 15px; color: rgba(251,246,236,0.8); margin-bottom: 22px; }
+
+  .celebrate-screen { text-align: center; position: relative; }
+  .celebrate-title { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 30px; color: var(--mango); margin: 10px 0 4px; text-shadow: 0 2px 0 rgba(0,0,0,0.2); animation: wiggle 0.6s ease-in-out infinite alternate; }
+  @keyframes wiggle { from { transform: rotate(-2deg) scale(1); } to { transform: rotate(2deg) scale(1.04); } }
+  .celebrate-sub { font-size: 15px; color: rgba(251,246,236,0.9); margin-bottom: 20px; }
+  .confetti-piece { position: absolute; top: -20px; font-size: 22px; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(560px) rotate(360deg); opacity: 0.2; } }
+
+  .primary-btn { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 17px; color: var(--jungle-deep); background: var(--cream); border: none; border-radius: 999px; padding: 14px 34px; cursor: pointer; box-shadow: 0 5px 0 #C7BFA9; margin-top: 6px; position: relative; z-index: 2; }
+  .primary-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #C7BFA9; }
+
+  .center-icon { font-size: 60px; margin-bottom: 14px; }
+  .headline { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 24px; margin-bottom: 8px; text-align: center; }
+  .subline { font-size: 15px; color: rgba(251,246,236,0.8); margin-bottom: 24px; text-align: center; max-width: 280px; }
+
+  .collection-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 100%; margin-bottom: 10px; }
+  .collection-slot { aspect-ratio: 1; border-radius: 14px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .collection-slot.unlocked { background: var(--cream); box-shadow: 0 4px 0 #D8CFB8; }
+  .collection-slot.locked { color: rgba(255,255,255,0.25); font-size: 18px; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(10,44,45,0.85); display: none; align-items: center; justify-content: center; z-index: 10; padding: 24px; }
+  .modal-overlay.active { display: flex; }
+  .modal-card { background: var(--jungle); border-radius: 20px; padding: 22px; max-width: 380px; width: 100%; max-height: 80vh; overflow-y: auto; }
+  .modal-title { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 14px; text-align: center; }
+  .modal-close { display: block; margin: 14px auto 0; }
+
+  .timer-track { width: 100%; max-width: 260px; height: 7px; background: rgba(255,255,255,0.15); border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
+  .timer-fill { height: 100%; width: 100%; background: #8FE388; border-radius: 999px; animation: timerLoop 20s linear infinite; }
+  @keyframes timerLoop { from { width: 100%; } to { width: 0%; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><span class="mark">🐾</span>Word Safari</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <button class="collection-btn" id="collectionBtn">📚 <span id="collectionCount">0/0</span></button>
+  </header>
+  <div class="level-tag" id="levelTag">Level: Colors</div>
+
+  <main id="mainArea">
+    <div class="screen active" id="screen-loading"><div class="center-icon">🌿</div></div>
+
+    <div class="screen" id="screen-intro">
+      <div class="center-icon">🎒</div>
+      <div class="headline" id="introHeadline">Today's Adventure</div>
+      <div class="subline" id="introSub"></div>
+      <button class="primary-btn" id="startBtn">Let's Go!</button>
+    </div>
+
+    <div class="screen" id="screen-listen">
+      <div class="review-tag" id="listenReviewTag" style="display:none;">🔁 Quick Review</div>
+      <div class="task-label">Listen, then tap what you hear</div>
+      <div class="timer-track" id="listenTimerTrack"><div class="timer-fill" id="listenTimerFill"></div></div>
+      <button class="speaker-btn" id="speakerBtn">🔊</button>
+      <div class="listen-grid" id="listenGrid"></div>
+    </div>
+
+    <div class="screen" id="screen-tap">
+      <div class="tap-word-label" id="tapLabel">WORD</div>
+      <div class="timer-track" id="tapTimerTrack"><div class="timer-fill" id="tapTimerFill"></div></div>
+      <div class="visual-stage" id="tapStage"><span class="emoji-fill">❓</span></div>
+      <div class="choice-grid" id="tapGrid"></div>
+    </div>
+
+    <div class="screen" id="screen-spell">
+      <div class="task-label" id="spellTaskLabel">Spell the word</div>
+      <div class="visual-stage" id="spellStage"></div>
+      <div class="spell-row" id="spellRow"></div>
+      <div class="key-grid" id="keyGrid"></div>
+    </div>
+
+    <div class="screen" id="screen-sentence">
+      <div class="task-label">Fill in the blank</div>
+      <div class="sentence-box" id="sentenceBox"></div>
+      <div class="sentence-grid" id="sentenceGrid"></div>
+    </div>
+
+    <div class="screen" id="screen-trace">
+      <div class="task-label">Trace the word</div>
+      <div class="trace-hint">Swipe your finger across the letters, in order</div>
+      <div class="trace-row" id="traceRow"></div>
+    </div>
+
+    <div class="screen" id="screen-progress">
+      <div class="center-icon">⭐</div>
+      <div class="headline">Nice work!</div>
+      <div class="dots-row" id="repDotsRow"></div>
+      <div class="subline" id="progressSub"></div>
+      <button class="primary-btn" id="progressContinueBtn">Continue →</button>
+    </div>
+
+    <div class="screen reward-screen" id="screen-reward">
+      <div class="reward-burst"><div class="center-icon" id="rewardVisual" style="margin:0;"></div></div>
+      <div class="reward-title" id="rewardTitle">Card Unlocked!</div>
+      <div class="reward-sub" id="rewardSub"></div>
+      <button class="primary-btn" id="nextBtn">Continue →</button>
+    </div>
+
+    <div class="screen celebrate-screen" id="screen-celebrate">
+      <div id="confettiLayer"></div>
+      <div class="reward-burst"><div class="center-icon" id="celebrateVisual" style="margin:0;"></div></div>
+      <div class="celebrate-title">Ori Is The King!!! 🏆</div>
+      <div class="celebrate-sub" id="celebrateSub"></div>
+      <button class="primary-btn" id="celebrateContinueBtn">Yay! Continue →</button>
+    </div>
+
+    <div class="screen" id="screen-done">
+      <div class="center-icon">🎈</div>
+      <div class="headline">That's all for this session!</div>
+      <div class="subline">Want to keep going, or take a break? Your collection is safe either way.</div>
+      <button class="primary-btn" id="anotherSessionBtn" style="margin-bottom:10px;">Another Session 🔁</button>
+      <button class="primary-btn" id="allDoneBtn" style="background:transparent; color:var(--cream); box-shadow:none; border:2px solid rgba(251,246,236,0.3);">That's all for now</button>
+    </div>
+
+    <div class="screen" id="screen-bye">
+      <div class="center-icon">👋</div>
+      <div class="headline">See you next time!</div>
+      <div class="subline">Great practicing today.</div>
+      <button class="primary-btn" id="byeCollectionBtn">View Collection</button>
+    </div>
+
+    <div class="screen" id="screen-levelcomplete">
+      <div class="center-icon">🏆</div>
+      <div class="headline">Level Complete!</div>
+      <div class="subline" id="levelCompleteSub">You mastered every card in this word set.</div>
+      <button class="primary-btn" id="levelCompleteBtn">See Collection</button>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="collectionModal">
+  <div class="modal-card">
+    <div class="modal-title">Your Collection</div>
+    <div class="collection-grid" id="collectionGrid"></div>
+    <button class="primary-btn modal-close" id="closeModalBtn">Close</button>
+  </div>
+</div>
+
+<script>
+/* ================= WORD LEVELS (edit/add levels here) ================= */
+const COLORS_WORDS = [
+  { word: 'red',    type: 'color', value: '#E53935', sentence: 'A tomato is ___.' },
+  { word: 'blue',   type: 'color', value: '#1E88E5', sentence: 'The sky is ___.' },
+  { word: 'green',  type: 'color', value: '#43A047', sentence: 'The grass is ___.' },
+  { word: 'yellow', type: 'color', value: '#FBC02D', sentence: 'The sun is ___.' },
+  { word: 'black',  type: 'color', value: '#222222', sentence: 'The night sky is ___.' },
+  { word: 'orange', type: 'color', value: '#FB8C00', sentence: 'A carrot is ___.' },
+  { word: 'purple', type: 'color', value: '#8E24AA', sentence: 'A grape is ___.' },
+  { word: 'pink',   type: 'color', value: '#EC407A', sentence: 'My flower is ___.' },
+  { word: 'white',  type: 'color', value: '#FFFFFF', sentence: 'The snow is ___.' },
+  { word: 'brown',  type: 'color', value: '#795548', sentence: 'The tree trunk is ___.' }
+];
+
+const NUM_1_10 = ['one','two','three','four','five','six','seven','eight','nine','ten']
+  .map((w,i) => ({ word: w, type: 'number', value: String(i+1), sentence: `I can count to ___.` }));
+
+const NUM_11_20 = ['eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty']
+  .map((w,i) => ({ word: w, type: 'number', value: String(i+11), sentence: `I can count to ___.` }));
+
+const NUM_TENS = [['thirty',30],['forty',40],['fifty',50],['sixty',60],['seventy',70],['eighty',80],['ninety',90],['hundred',100]]
+  .map(([w,v]) => ({ word: w, type: 'number', value: String(v), sentence: `I can count to ___.` }));
+
+const PEOPLE_WORDS = [
+  { word: 'man',      type: 'noun', emoji: '👨', sentence: 'That tall person is a ___.' },
+  { word: 'woman',    type: 'noun', emoji: '👩', sentence: 'My teacher is a ___.' },
+  { word: 'boy',      type: 'noun', emoji: '👦', sentence: 'He is a young ___.' },
+  { word: 'girl',     type: 'noun', emoji: '👧', sentence: 'She is a young ___.' },
+  { word: 'baby',     type: 'noun', emoji: '👶', sentence: 'The ___ is sleeping.' },
+  { word: 'mom',      type: 'noun', emoji: '👩', sentence: 'I love my ___.' },
+  { word: 'dad',      type: 'noun', emoji: '👨', sentence: 'I love my ___.' },
+  { word: 'sister',   type: 'noun', emoji: '👧', sentence: 'She is my ___.' },
+  { word: 'brother',  type: 'noun', emoji: '👦', sentence: 'He is my ___.' },
+  { word: 'friend',   type: 'noun', emoji: '🧑‍🤝‍🧑', sentence: 'You are my best ___.' },
+  { word: 'grandma',  type: 'noun', emoji: '👵', sentence: 'My ___ bakes cookies.' },
+  { word: 'grandpa',  type: 'noun', emoji: '👴', sentence: 'My ___ tells stories.' },
+  { word: 'pupil',    type: 'noun', emoji: '🎓', sentence: 'I am a ___ at school.' },
+  { word: 'teacher',  type: 'noun', emoji: '🧑‍🏫', sentence: 'My ___ is kind.' },
+  { word: 'children', type: 'noun', emoji: '🧒', sentence: 'The ___ are playing outside.' }
+];
+
+const VERBS_WORDS = [
+  { word: 'run',    type: 'verb', emoji: '🏃', sentence: 'I like to ___ fast.' },
+  { word: 'play',   type: 'verb', emoji: '⚽', sentence: 'I ___ football.' },
+  { word: 'go',     type: 'verb', emoji: '🚶', sentence: 'I ___ to school.' },
+  { word: 'sit',    type: 'verb', emoji: '🪑', sentence: 'I ___ on a chair.' },
+  { word: 'look',   type: 'verb', emoji: '👀', sentence: 'I ___ at the sky.' },
+  { word: 'jump',   type: 'verb', emoji: '🦘', sentence: 'I can ___ high.' },
+  { word: 'see',    type: 'verb', emoji: '👁️', sentence: 'I ___ a bird.' },
+  { word: 'sing',   type: 'verb', emoji: '🎤', sentence: 'I ___ a song.' },
+  { word: 'read',   type: 'verb', emoji: '📖', sentence: 'I ___ a book.' },
+  { word: 'stand',  type: 'verb', emoji: '🧍', sentence: 'I ___ in class.' },
+  { word: 'eat',    type: 'verb', emoji: '🍽️', sentence: 'I ___ pizza.' },
+  { word: 'talk',   type: 'verb', emoji: '💬', sentence: 'I ___ on the phone.' },
+  { word: 'write',  type: 'verb', emoji: '✍️', sentence: 'I ___ in my notebook.' },
+  { word: 'say',    type: 'verb', emoji: '🗣️', sentence: 'I ___ hello.' },
+  { word: 'listen', type: 'verb', emoji: '👂', sentence: 'I ___ to music.' }
+];
+
+const ADJ_WORDS = [
+  { word: 'short', type: 'adj', emoji: '📏', sentence: 'My pencil is ___.' },
+  { word: 'fat',   type: 'adj', emoji: '🐖', sentence: 'The panda is ___.' },
+  { word: 'sad',   type: 'adj', emoji: '😢', sentence: 'The clown is ___.' },
+  { word: 'cold',  type: 'adj', emoji: '🥶', sentence: 'The ice is ___.' },
+  { word: 'hot',   type: 'adj', emoji: '🥵', sentence: 'The soup is ___.' },
+  { word: 'happy', type: 'adj', emoji: '😊', sentence: 'I feel ___ today.' },
+  { word: 'good',  type: 'adj', emoji: '👍', sentence: 'This cake is ___.' },
+  { word: 'new',   type: 'adj', emoji: '✨', sentence: 'I have a ___ bike.' },
+  { word: 'thin',  type: 'adj', emoji: '🥒', sentence: 'The rope is ___.' },
+  { word: 'long',  type: 'adj', emoji: '🐍', sentence: 'The snake is ___.' },
+  { word: 'tall',  type: 'adj', emoji: '🦒', sentence: 'The giraffe is ___.' },
+  { word: 'old',   type: 'adj', emoji: '👴', sentence: 'The castle is ___.' },
+  { word: 'bad',   type: 'adj', emoji: '👎', sentence: 'The weather is ___.' }
+];
+
+const LEVELS = [
+  { name: 'Colors',           words: COLORS_WORDS },
+  { name: 'Numbers 1-10',     words: NUM_1_10 },
+  { name: 'Numbers 11-20',    words: NUM_11_20 },
+  { name: 'Numbers by Tens',  words: NUM_TENS },
+  { name: 'People',           words: PEOPLE_WORDS },
+  { name: 'Verbs',            words: VERBS_WORDS },
+  { name: 'Adjectives',       words: ADJ_WORDS }
+];
+
+const LEGACY_LEVEL1_WORDS = [
+  { word: 'baby',  type: 'noun',  emoji: '👶' },
+  { word: 'bag',   type: 'noun',  emoji: '🎒' },
+  { word: 'book',  type: 'noun',  emoji: '📖' },
+  { word: 'big',   type: 'size',  value: 'big' },
+  { word: 'small', type: 'size',  value: 'small' },
+  { word: 'box',   type: 'noun',  emoji: '📦' },
+  { word: 'dog',   type: 'noun',  emoji: '🐶' },
+  { word: 'door',  type: 'noun',  emoji: '🚪' },
+  { word: 'gray',  type: 'color', value: '#8A8A8A' },
+  { word: 'cat',   type: 'noun',  emoji: '🐱' }
+];
+
+const SESSION_NEW_WORDS = 3;
+const SESSION_REVIEW_WORDS = 2;
+const REPS_TO_MASTER = 5;
+const STORAGE_KEY = 'wordSafariProgress_v2';
+const CHILD_NAME = 'Ori';
+/* ========================================================================= */
+
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ---------- progress storage + migration ---------- */
+function allLevelWordsFlat() {
+  const map = {};
+  LEVELS.forEach(lvl => lvl.words.forEach(w => { map[w.word] = w; }));
+  return Object.values(map);
+}
+function repairLegacyStars(p) {
+  const canonical = {};
+  LEGACY_LEVEL1_WORDS.forEach(w => { canonical[w.word] = w; });
+  allLevelWordsFlat().forEach(w => { canonical[w.word] = w; });
+  let changed = false;
+  Object.keys(p.wordProgress).forEach(key => {
+    const entry = p.wordProgress[key];
+    if (entry.emoji === '⭐' && canonical[key]) {
+      const c = canonical[key];
+      entry.type = c.type;
+      entry.emoji = c.emoji;
+      entry.value = c.value;
+      entry.sentence = entry.sentence || c.sentence;
+      changed = true;
+    }
+  });
+  return changed;
+}
+function loadProgress() {
+  let p;
+  try { p = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch(e) { p = null; }
+  if (!p) {
+    let old = null;
+    try { old = JSON.parse(localStorage.getItem('wordSafariProgress_v1')); } catch(e) { old = null; }
+    p = { wordProgress: {}, lastPlayDate: null, streak: 0, currentLevelIndex: 0 };
+    if (old && old.mastered) {
+      Object.keys(old.mastered).forEach(w => {
+        const legacy = LEGACY_LEVEL1_WORDS.find(lw => lw.word === w);
+        p.wordProgress[w] = legacy
+          ? { cleanReps: REPS_TO_MASTER, mastered: true, type: legacy.type, emoji: legacy.emoji, value: legacy.value }
+          : { cleanReps: REPS_TO_MASTER, mastered: true, type: 'noun', emoji: '⭐' };
+      });
+    }
+  }
+  if (!p.wordProgress) p.wordProgress = {};
+  if (typeof p.currentLevelIndex !== 'number') p.currentLevelIndex = 0;
+  repairLegacyStars(p);
+  const today = todayStr();
+  if (p.lastPlayDate !== today) {
+    if (p.lastPlayDate && daysBetween(p.lastPlayDate, today) === 1) p.streak = (p.streak || 1) + 1;
+    else p.streak = p.streak || 1;
+    p.lastPlayDate = today;
+  }
+  if (!p.streak) p.streak = 1;
+  saveProgress(p);
+  return p;
+}
+function saveProgress(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+
+let progress = loadProgress();
+let queue = [];
+let queueIndex = 0;
+let currentWord = null;
+let currentIsReview = false;
+let hadErrorThisCycle = false;
+
+function currentLevel() { return LEVELS[progress.currentLevelIndex]; }
+function currentLevelWords() { return currentLevel().words; }
+
+function ensureWordProgress(w) {
+  if (!progress.wordProgress[w.word]) {
+    progress.wordProgress[w.word] = {
+      cleanReps: 0, mastered: false,
+      type: w.type, emoji: w.emoji, value: w.value, sentence: w.sentence
+    };
+  }
+}
+function ensureLevelWords() { currentLevelWords().forEach(ensureWordProgress); }
+
+function allKnownWords() {
+  const map = {};
+  currentLevelWords().forEach(w => { map[w.word] = w; });
+  Object.keys(progress.wordProgress).forEach(key => {
+    if (!map[key]) {
+      const snap = progress.wordProgress[key];
+      map[key] = { word: key, type: snap.type, emoji: snap.emoji, value: snap.value, sentence: snap.sentence };
+    }
+  });
+  return Object.values(map);
+}
+
+/* ---------- visual rendering helpers ---------- */
+function visualGlyph(w) { return w.type === 'number' ? w.value : (w.emoji || '⭐'); }
+
+function stageHTML(w, size) {
+  size = size || 76;
+  if (w.type === 'size') {
+    const px = w.value === 'big' ? 90 : 34;
+    return `<div class="shape-fill" style="width:${px}px;height:${px}px;"></div>`;
+  }
+  if (w.type === 'color') return `<div class="swatch-fill" style="background:${w.value};"></div>`;
+  return `<span class="emoji-fill" style="font-size:${size}px">${visualGlyph(w)}</span>`;
+}
+function optionHTML(w, showCaption) {
+  let inner = '';
+  if (w.type === 'size') {
+    const px = w._sizePx || (w.value === 'big' ? 80 : 30);
+    inner = `<div class="opt-shape" style="width:${px}px;height:${px}px;"></div>`;
+  } else if (w.type === 'color') {
+    inner = `<div class="opt-swatch" style="background:${w._colorVal || w.value};"></div>`;
+  } else {
+    inner = `<span class="opt-emoji">${visualGlyph(w)}</span>`;
+  }
+  if (showCaption && w.type !== 'size') inner += `<span class="opt-caption">${w.word}</span>`;
+  return inner;
+}
+
+function buildOptions(target) {
+  if (target.type === 'size') {
+    const sizes = shuffle([34, 52, 70, 88]);
+    const correctPx = target.value === 'big' ? Math.max(...sizes) : Math.min(...sizes);
+    return sizes.map(px => ({ w: { ...target, _sizePx: px }, correct: px === correctPx }));
+  }
+  const known = allKnownWords();
+  const pool = known.filter(w => w.type === target.type && w.word !== target.word);
+  const decoys = shuffle(pool).slice(0, 3);
+  const opts = [
+    { w: target, correct: true },
+    ...decoys.map(d => ({ w: target.type === 'color' ? { ...d, _colorVal: d.value } : d, correct: false }))
+  ];
+  return shuffle(opts);
+}
+
+/* ---------- screen management ---------- */
+const screens = ['screen-loading','screen-intro','screen-listen','screen-tap','screen-spell','screen-sentence','screen-trace','screen-progress','screen-reward','screen-celebrate','screen-done','screen-bye','screen-levelcomplete'];
+function showScreen(id) {
+  screens.forEach(s => document.getElementById(s).classList.toggle('active', s === id));
+}
+
+function updateHeader() {
+  const masteredCount = Object.values(progress.wordProgress).filter(p => p.mastered).length;
+  const totalAll = allLevelWordsFlat().length;
+  document.getElementById('progressFill').style.width = (masteredCount / totalAll * 100) + '%';
+  document.getElementById('collectionCount').textContent = masteredCount + '/' + totalAll;
+  document.getElementById('levelTag').textContent = 'Level: ' + currentLevel().name;
+}
+
+/* ---------- queue building ---------- */
+function buildQueue() {
+  const inProgressOrNew = currentLevelWords().filter(w => {
+    const p = progress.wordProgress[w.word];
+    return !p || !p.mastered;
+  });
+  const practiceQueue = shuffle(inProgressOrNew).slice(0, SESSION_NEW_WORDS).map(w => ({ word: w, isReview: false }));
+
+  const masteredKeys = Object.keys(progress.wordProgress).filter(k => progress.wordProgress[k].mastered);
+  const reviewQueue = shuffle(masteredKeys)
+    .slice(0, SESSION_REVIEW_WORDS)
+    .map(k => {
+      const snap = progress.wordProgress[k];
+      return { word: { word: k, type: snap.type, emoji: snap.emoji, value: snap.value, sentence: snap.sentence }, isReview: true };
+    });
+
+  return [...reviewQueue, ...practiceQueue];
+}
+
+function allLevelMastered() {
+  return currentLevelWords().every(w => progress.wordProgress[w.word] && progress.wordProgress[w.word].mastered);
+}
+
+function startSession() {
+  ensureLevelWords();
+  updateHeader();
+  queue = buildQueue();
+  queueIndex = 0;
+  if (queue.length === 0) {
+    if (allLevelMastered()) { showLevelComplete(); } else { showScreen('screen-done'); }
+    return;
+  }
+  const newCount = queue.filter(q => !q.isReview).length;
+  const reviewCount = queue.filter(q => q.isReview).length;
+  document.getElementById('introHeadline').textContent = currentLevel().name + ' Time!';
+  document.getElementById('introSub').textContent =
+    `${newCount} word${newCount === 1 ? '' : 's'} to practice` +
+    (reviewCount ? ` + ${reviewCount} review` : '') + `. Streak: ${progress.streak} 🔥`;
+  showScreen('screen-intro');
+}
+
+function playNextInQueue() {
+  if (queueIndex >= queue.length) {
+    saveProgress(progress);
+    updateHeader();
+    if (allLevelMastered()) { showLevelComplete(); } else { showScreen('screen-done'); }
+    return;
+  }
+  const item = queue[queueIndex];
+  currentWord = item.word;
+  currentIsReview = item.isReview;
+  hadErrorThisCycle = false;
+  if (!currentIsReview) ensureWordProgress(currentWord);
+  renderListen();
+  showScreen('screen-listen');
+}
+
+function showLevelComplete() {
+  const hasNext = progress.currentLevelIndex < LEVELS.length - 1;
+  document.getElementById('levelCompleteSub').textContent = hasNext
+    ? `You mastered every card in "${currentLevel().name}"! Ready for the next level?`
+    : `You mastered every card in every level! Amazing job, ${CHILD_NAME}!`;
+  const btn = document.getElementById('levelCompleteBtn');
+  btn.textContent = hasNext ? 'Next Level →' : 'See Collection';
+  btn.onclick = hasNext ? goToNextLevel : openCollectionModal;
+  showScreen('screen-levelcomplete');
+}
+function goToNextLevel() {
+  progress.currentLevelIndex++;
+  saveProgress(progress);
+  startSession();
+}
+
+/* ---------- LISTEN ---------- */
+function renderListen() {
+  document.getElementById('listenReviewTag').style.display = currentIsReview ? 'inline-block' : 'none';
+  restartTimerBar(document.getElementById('listenTimerFill'));
+  const grid = document.getElementById('listenGrid');
+  grid.innerHTML = '';
+  const opts = buildOptions(currentWord);
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'listen-card';
+    btn.innerHTML = optionHTML(opt.w, true);
+    btn.addEventListener('click', () => {
+      if (opt.correct) {
+        btn.classList.add('correct');
+        setTimeout(() => { renderTap(); showScreen('screen-tap'); }, 550);
+      } else {
+        hadErrorThisCycle = true;
+        btn.classList.add('wrong');
+        setTimeout(() => btn.classList.remove('wrong'), 400);
+      }
+    });
+    grid.appendChild(btn);
+  });
+}
+document.getElementById('speakerBtn').addEventListener('click', () => {
+  if ('speechSynthesis' in window && currentWord) {
+    const utter = new SpeechSynthesisUtterance(currentWord.word);
+    utter.rate = 0.85;
+    speechSynthesis.speak(utter);
+  }
+});
+
+/* ---------- TAP ---------- */
+function restartTimerBar(el) {
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = 'timerLoop 20s linear infinite';
+}
+
+function renderTap() {
+  const label = document.getElementById('tapLabel');
+  label.textContent = currentWord.type === 'size' ? currentWord.value.toUpperCase() : currentWord.word.toUpperCase();
+  restartTimerBar(document.getElementById('tapTimerFill'));
+
+  document.getElementById('tapStage').innerHTML = '<span class="emoji-fill">❓</span>';
+
+  const grid = document.getElementById('tapGrid');
+  grid.innerHTML = '';
+  const opts = buildOptions(currentWord);
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = optionHTML(opt.w, opt.w.type === 'noun');
+    btn.addEventListener('click', () => {
+      if (opt.correct) {
+        btn.classList.add('correct');
+        setTimeout(() => {
+          if (currentIsReview) { finishReviewWord(); }
+          else { renderSpell(); showScreen('screen-spell'); }
+        }, 550);
+      } else {
+        hadErrorThisCycle = true;
+        btn.classList.add('wrong');
+        setTimeout(() => btn.classList.remove('wrong'), 400);
+      }
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function finishReviewWord() {
+  queueIndex++;
+  playNextInQueue();
+}
+
+/* ---------- SPELL ---------- */
+let typed = '';
+let spellErrorCount = 0;
+let spellMode = 'free'; // 'free' | 'guided'
+let guidedIndex = 0;
+const SPELL_ERRORS_BEFORE_GUIDED = 5;
+
+function renderSpell() {
+  typed = '';
+  spellErrorCount = 0;
+  spellMode = 'free';
+  guidedIndex = 0;
+  document.getElementById('spellTaskLabel').textContent = 'Spell the word';
+  document.getElementById('spellStage').innerHTML = stageHTML(currentWord, 76);
+  renderSpellRow();
+  setupSpellKeys();
+}
+
+function setupSpellKeys() {
+  const target = currentWord.word;
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const extras = shuffle(alphabet.filter(l => !target.includes(l))).slice(0, Math.max(4, 8 - target.length));
+  const keys = shuffle([...target.split(''), ...extras]);
+  const keyGrid = document.getElementById('keyGrid');
+  keyGrid.innerHTML = '';
+  keys.forEach(letter => {
+    const key = document.createElement('button');
+    key.className = 'key-btn';
+    key.textContent = letter;
+    key.addEventListener('click', () => handleSpellKey(letter));
+    keyGrid.appendChild(key);
+  });
+}
+
+function speakGuidedLetter() {
+  const target = currentWord.word;
+  if ('speechSynthesis' in window && guidedIndex < target.length) {
+    const utter = new SpeechSynthesisUtterance(target[guidedIndex]);
+    utter.rate = 0.8;
+    speechSynthesis.speak(utter);
+  }
+}
+
+function startGuidedSpell() {
+  spellMode = 'guided';
+  typed = '';
+  guidedIndex = 0;
+  document.getElementById('spellTaskLabel').textContent = 'Listen to each letter, then tap it';
+  renderSpellRow();
+  speakGuidedLetter();
+}
+
+function handleSpellKey(letter) {
+  const target = currentWord.word;
+  if (spellMode === 'free') {
+    if (typed.length < target.length) {
+      typed += letter;
+      renderSpellRow();
+      if (typed === target) {
+        setTimeout(() => { renderSentence(); showScreen('screen-sentence'); }, 500);
+      } else if (typed.length === target.length) {
+        hadErrorThisCycle = true;
+        spellErrorCount++;
+        if (spellErrorCount >= SPELL_ERRORS_BEFORE_GUIDED) {
+          setTimeout(() => startGuidedSpell(), 500);
+        } else {
+          setTimeout(() => { typed = ''; renderSpellRow(); }, 500);
+        }
+      }
+    }
+  } else {
+    // guided mode: wait indefinitely for the correct next letter; wrong taps are ignored
+    if (letter === target[guidedIndex]) {
+      typed += letter;
+      renderSpellRow();
+      guidedIndex++;
+      if (guidedIndex === target.length) {
+        setTimeout(() => { renderSentence(); showScreen('screen-sentence'); }, 500);
+      } else {
+        speakGuidedLetter();
+      }
+    }
+  }
+}
+function renderSpellRow() {
+  const row = document.getElementById('spellRow');
+  row.innerHTML = '';
+  const target = currentWord.word;
+  for (let i = 0; i < target.length; i++) {
+    const box = document.createElement('div');
+    if (i < typed.length) { box.className = 'letter-box filled'; box.textContent = typed[i]; }
+    else { box.className = 'letter-box empty'; box.textContent = '_'; }
+    row.appendChild(box);
+  }
+}
+
+/* ---------- SENTENCE ---------- */
+function renderSentence() {
+  const box = document.getElementById('sentenceBox');
+  const template = currentWord.sentence || 'This is ___.';
+  box.innerHTML = template.replace('___', '<span class="sentence-blank" id="sentenceBlank">___</span>');
+
+  const grid = document.getElementById('sentenceGrid');
+  grid.innerHTML = '';
+  const opts = buildOptions(currentWord);
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = optionHTML(opt.w, true);
+    btn.addEventListener('click', () => {
+      if (opt.correct) {
+        btn.classList.add('correct');
+        const blank = document.getElementById('sentenceBlank');
+        blank.textContent = currentWord.word;
+        blank.classList.add('filled');
+        setTimeout(() => { renderTrace(); showScreen('screen-trace'); }, 700);
+      } else {
+        hadErrorThisCycle = true;
+        btn.classList.add('wrong');
+        setTimeout(() => btn.classList.remove('wrong'), 400);
+      }
+    });
+    grid.appendChild(btn);
+  });
+}
+
+/* ---------- TRACE ---------- */
+let traceExpected = 0;
+let isTracing = false;
+function renderTrace() {
+  traceExpected = 0;
+  isTracing = false;
+  const row = document.getElementById('traceRow');
+  row.innerHTML = '';
+  const word = currentWord.word;
+  for (let i = 0; i < word.length; i++) {
+    const box = document.createElement('div');
+    box.className = 'trace-letter';
+    box.textContent = word[i];
+    row.appendChild(box);
+  }
+}
+function traceIndexFromEvent(e) {
+  const row = document.getElementById('traceRow');
+  const rect = row.getBoundingClientRect();
+  const boxWidth = rect.width / currentWord.word.length;
+  const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+  let idx = Math.floor((clientX - rect.left) / boxWidth);
+  if (idx < 0) idx = 0;
+  if (idx > currentWord.word.length - 1) idx = currentWord.word.length - 1;
+  return idx;
+}
+function handleTraceStart(e) { isTracing = true; handleTraceMove(e); }
+function handleTraceMove(e) {
+  if (!isTracing) return;
+  const idx = traceIndexFromEvent(e);
+  if (idx === traceExpected) {
+    const row = document.getElementById('traceRow');
+    row.children[traceExpected].classList.add('traced');
+    traceExpected++;
+    if (traceExpected === currentWord.word.length) {
+      isTracing = false;
+      setTimeout(() => finishPracticeCycle(), 500);
+    }
+  }
+}
+function handleTraceEnd() { isTracing = false; }
+const traceRowEl = document.getElementById('traceRow');
+traceRowEl.addEventListener('pointerdown', handleTraceStart);
+traceRowEl.addEventListener('pointermove', handleTraceMove);
+traceRowEl.addEventListener('pointerup', handleTraceEnd);
+traceRowEl.addEventListener('pointerleave', handleTraceEnd);
+traceRowEl.addEventListener('pointercancel', handleTraceEnd);
+
+/* ---------- CYCLE COMPLETION ---------- */
+function playClapSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        const bufferSize = ctx.sampleRate * 0.07;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let j = 0; j < bufferSize; j++) data[j] = (Math.random() * 2 - 1) * (1 - j / bufferSize);
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 1600;
+        const gain = ctx.createGain();
+        gain.gain.value = 0.6;
+        noise.connect(filter).connect(gain).connect(ctx.destination);
+        noise.start();
+      }, i * 130);
+    }
+  } catch (e) { /* audio unavailable, ignore */ }
+}
+function launchConfetti() {
+  const layer = document.getElementById('confettiLayer');
+  layer.innerHTML = '';
+  const pieces = ['🎉','⭐','🎊','🏆','✨'];
+  for (let i = 0; i < 24; i++) {
+    const span = document.createElement('span');
+    span.className = 'confetti-piece';
+    span.textContent = pieces[Math.floor(Math.random() * pieces.length)];
+    span.style.left = Math.random() * 100 + '%';
+    span.style.animationDuration = (1.2 + Math.random() * 1.2) + 's';
+    span.style.fontSize = (16 + Math.random() * 16) + 'px';
+    layer.appendChild(span);
+  }
+}
+
+function finishPracticeCycle() {
+  const key = currentWord.word;
+  const p = progress.wordProgress[key];
+  if (!hadErrorThisCycle) {
+    p.cleanReps = Math.min(REPS_TO_MASTER, (p.cleanReps || 0) + 1);
+  }
+  saveProgress(progress);
+  updateHeader();
+
+  if (p.cleanReps >= REPS_TO_MASTER) {
+    p.mastered = true;
+    saveProgress(progress);
+    updateHeader();
+    document.getElementById('celebrateVisual').innerHTML = stageHTML(currentWord, 70);
+    document.getElementById('celebrateSub').textContent = `You mastered "${currentWord.word}" — card added to your collection!`;
+    showScreen('screen-celebrate');
+    launchConfetti();
+    playClapSound();
+  } else {
+    const dotsRow = document.getElementById('repDotsRow');
+    dotsRow.innerHTML = '';
+    for (let i = 0; i < REPS_TO_MASTER; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'rep-dot' + (i < p.cleanReps ? ' filled' : '');
+      dotsRow.appendChild(dot);
+    }
+    document.getElementById('progressSub').textContent = hadErrorThisCycle
+      ? `Almost! Practice "${currentWord.word}" again soon to earn a clean round.`
+      : `Clean round for "${currentWord.word}"! ${p.cleanReps}/${REPS_TO_MASTER} to unlock the card.`;
+    showScreen('screen-progress');
+  }
+}
+document.getElementById('progressContinueBtn').addEventListener('click', () => { queueIndex++; playNextInQueue(); });
+document.getElementById('celebrateContinueBtn').addEventListener('click', () => { queueIndex++; playNextInQueue(); });
+
+/* ---------- intro / done buttons ---------- */
+document.getElementById('startBtn').addEventListener('click', () => { queueIndex = 0; playNextInQueue(); });
+document.getElementById('anotherSessionBtn').addEventListener('click', () => { startSession(); });
+document.getElementById('allDoneBtn').addEventListener('click', () => { showScreen('screen-bye'); });
+document.getElementById('byeCollectionBtn').addEventListener('click', openCollectionModal);
+
+/* ---------- collection modal ---------- */
+function openCollectionModal() {
+  const grid = document.getElementById('collectionGrid');
+  grid.innerHTML = '';
+  const all = allLevelWordsFlat();
+  all.forEach(w => {
+    const p = progress.wordProgress[w.word];
+    const isUnlocked = p && p.mastered;
+    const slot = document.createElement('div');
+    slot.className = 'collection-slot ' + (isUnlocked ? 'unlocked' : 'locked');
+    slot.innerHTML = isUnlocked ? stageHTML(w, 26) : '🔒';
+    grid.appendChild(slot);
+  });
+  document.getElementById('collectionModal').classList.add('active');
+}
+document.getElementById('collectionBtn').addEventListener('click', openCollectionModal);
+document.getElementById('closeModalBtn').addEventListener('click', () => {
+  document.getElementById('collectionModal').classList.remove('active');
+});
+
+/* ---------- boot ---------- */
+ensureLevelWords();
+updateHeader();
+startSession();
+</script>
+</body>
+</html>
