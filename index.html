@@ -105,7 +105,10 @@ const cardPic = row => {
   const d = row.pic_data || {};
 
   if (d.left && d.right) {
-    if (row.pic_type === "person_height") {
+    if (
+  ["normal", "short", "fat", "thin"].includes(d.left) &&
+  ["normal", "short", "fat", "thin"].includes(d.right)
+) {
       const person = value => {
         if (value === "normal") return M;
         if (value === "short") return sm;
@@ -239,7 +242,7 @@ const usernameToAuthEmail = username => `${username.trim().toLowerCase()}@word-s
 const validUsername = username => /^[a-zA-Z0-9_.-]{3,24}$/.test(username);
 function authScreen(message="Sign in with your username and password"){
   document.body.classList.remove("goldr");
-  view(`<div class="c"><div class="hero">🦁</div><h1>Word Safari</h1><p>${message}</p><form id="auth-form" style="width:100%;display:grid;gap:12px"><input id="username" type="text" autocomplete="username" placeholder="Username (3–24 characters)" minlength="3" maxlength="24" required pattern="[A-Za-z0-9_.-]{3,24}" style="padding:14px;border-radius:14px;border:2px solid #d8c6a8;font:inherit"><input id="password" type="password" autocomplete="current-password" placeholder="Password (at least 6 characters)" minlength="6" required style="padding:14px;border-radius:14px;border:2px solid #d8c6a8;font:inherit"><input id="learner-name" type="text" placeholder="Learner name (for new account)" maxlength="80" style="padding:14px;border-radius:14px;border:2px solid #d8c6a8;font:inherit"><button class="big" type="submit">Sign in</button><button class="big alt" type="button" id="signup">Create account</button></form><p style="font-size:.85rem;font-weight:500">Usernames may contain letters, numbers, dots, dashes and underscores. Ask your parent to keep your username and password safe.</p></div>`);
+  view(`<div class="c"><div class="hero">🦁</div><h1>Word Safari</h1><p>${message}</p><form id="auth-form" style="width:100%;display:grid;gap:12px"><input id="username" type="text" autocomplete="username" placeholder="Username (3–24 characters)" minlength="3" maxlength="24" required pattern="[A-Za-z0-9_.-]{3,24}" style="padding:14px;border-radius:14px;border:2px solid #d8c6a8;font:inherit"><input id="password" type="password" autocomplete="current-password" placeholder="Password (at least 6 characters)" minlength="6" required style="padding:14px;border-radius:14px;border:2px solid #d8c6a8;font:inherit"><button class="big" type="submit">Sign in</button><button class="big alt" type="button" id="signup">Create account</button></form><p style="font-size:.85rem;font-weight:500">Usernames may contain letters, numbers, dots, dashes and underscores. Ask your parent to keep your username and password safe.</p></div>`);
   $("#auth-form").onsubmit=async e=>{
     e.preventDefault();
     const username=$("#username").value.trim().toLowerCase(),password=$("#password").value;
@@ -248,10 +251,19 @@ function authScreen(message="Sign in with your username and password"){
     if(error)showError("Sign-in failed. Check your username and password.");else await init();
   };
   $("#signup").onclick=async()=>{
-    const username=$("#username").value.trim().toLowerCase(),password=$("#password").value,name=$("#learner-name").value.trim();
+    const username=$("#username").value.trim().toLowerCase(),password=$("#password").value;
     if(!validUsername(username)){showError("Choose a username with 3–24 letters, numbers, dots, dashes or underscores.");return;}
     if(password.length<6){showError("Choose a password with at least 6 characters.");return;}
-    const {data,error}=await sb.auth.signUp({email:usernameToAuthEmail(username),password,options:{data:{username,learner_name:name||username}}});
+    const {data,error}=await sb.auth.signUp({
+  email: usernameToAuthEmail(username),
+  password,
+  options: {
+    data: {
+      username,
+      learner_name: username
+    }
+  }
+});
     if(error){showError(error.message.includes("already registered")||error.message.includes("already been registered")?"That username may already be taken. Try another one.":error.message);return;}
     if(!data.session){showError("Account created, but Supabase requires email confirmation. Disable Confirm email in Supabase Auth settings for this username-only login setup, then try again.");return;}
     await init();
