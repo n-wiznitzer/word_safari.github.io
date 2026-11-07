@@ -105,7 +105,10 @@ const cardPic = row => {
   const d = row.pic_data || {};
 
   if (d.left && d.right) {
-    if (row.pic_type === "person_height") {
+    if (
+  ["normal", "short", "fat", "thin"].includes(d.left) &&
+  ["normal", "short", "fat", "thin"].includes(d.right)
+) {
       const person = value => {
         if (value === "normal") return M;
         if (value === "short") return sm;
