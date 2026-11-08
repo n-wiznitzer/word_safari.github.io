@@ -270,7 +270,26 @@ function authScreen(message="Sign in with your username and password"){
   };
 }
 async function loadAppData(){
-  const {data:authData,error:authError}=await sb.auth.getUser();if(authError)throw authError;dbUser=authData.user;if(!dbUser){authScreen();return false;}
+
+const {data:sessionData,error:sessionError}=await sb.auth.getSession();
+if(sessionError) throw sessionError;
+
+if(!sessionData.session){
+  dbUser=null;
+  profile=null;
+  authScreen();
+  return false;
+}
+
+const {data:authData,error:authError}=await sb.auth.getUser();
+if(authError) throw authError;
+dbUser=authData.user;
+
+if(!dbUser){
+  authScreen();
+  return false;
+}
+
   const {data:themes,error:themeErr}=await sb.from("dim_themes").select("id,name");if(themeErr)throw themeErr;
   const basketball=(themes||[]).find(t=>t.name.toLowerCase()==="basketball");
   let {data:profiles,error:profileErr}=await sb.from("dim_users").select("*").eq("auth_user_id",dbUser.id).limit(1);if(profileErr)throw profileErr;
