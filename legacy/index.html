@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Safari</title>
+<style>
+:root{--bg:#fff1d0;--ink:#3a2412;--card:#fffaf0;--g:#5bbf6a;--o:#ff8a3d;--s:#3fa7f5;--r:#e8453c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2b2236;--ink:#fff1d0;--card:#43355a}}
+:root[data-theme="dark"]{--bg:#2b2236;--ink:#fff1d0;--card:#43355a}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Arial Rounded MT Bold",system-ui,sans-serif;font-weight:700}
+#app{max-width:520px;margin:0 auto;min-height:100%;padding:12px 16px 24px}
+.c{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+h1{font-size:2.4rem;margin:0;color:var(--o);text-shadow:0 3px 0 rgba(0,0,0,.12)}h2{margin:0}
+.hero{font-size:6rem;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-12px) rotate(4deg)}}
+button{font:inherit;color:inherit;cursor:pointer;border:0}
+.big{width:100%;max-width:320px;padding:16px;font-size:1.4rem;border-radius:28px;background:var(--g);color:#fff;box-shadow:0 6px 0 #3d9a4c}
+.big.alt{background:var(--s);box-shadow:0 6px 0 #2a7fc4}
+.big:active{transform:translateY(4px);box-shadow:0 2px 0 #0003}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:10px}.top span{font-size:1.6rem;cursor:pointer}
+.pb{flex:1;height:14px;border-radius:9px;background:rgba(0,0,0,.12);overflow:hidden}.pb i{display:block;height:100%;background:var(--o);transition:width .4s}
+.tm{width:100%;height:10px;border-radius:6px;background:rgba(0,0,0,.1);overflow:hidden}
+.tm i{display:block;height:100%;background:#9be28b;animation:tm 20s linear infinite}
+@keyframes tm{from{width:100%}to{width:0}}
+.spk{font-size:2.4rem;background:var(--s);border-radius:50%;width:76px;height:76px;box-shadow:0 5px 0 #2a7fc4}
+.word{font-size:3.2rem;letter-spacing:2px;margin:6px 0}
+.pic{font-size:5.5rem;line-height:1.1}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
+.opt{background:var(--card);border-radius:22px;padding:18px 8px;font-size:1.5rem;box-shadow:0 5px 0 rgba(0,0,0,.18);border:3px solid transparent}
+.opt.pic{font-size:3.4rem;padding:10px}
+.opt.ok,.bl.ok{border-color:var(--g);background:#c9f2cf;color:#1f5d2a;transform:scale(1.06)}
+.opt.no,.bl.no{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+.opt[disabled]{opacity:.25}
+.slots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.slots b{width:44px;height:54px;border-radius:12px;background:var(--card);border-bottom:5px solid var(--o);font-size:2rem;line-height:54px}
+.tl{padding:14px 0;font-size:1.8rem;text-transform:uppercase}
+.hoop{width:150px;height:140px;position:relative;margin:0 auto}
+.hoop i{position:absolute;display:block}
+.bb{left:25px;top:0;width:100px;height:68px;background:#fff;border:4px solid #8a8a8a;border-radius:8px}
+.bb::after{content:"";position:absolute;left:50%;bottom:6px;width:38px;height:26px;margin-left:-19px;border:4px solid var(--r);border-radius:3px}
+.rim{left:35px;top:62px;width:80px;height:13px;border-radius:50%;background:var(--o);border:3px solid #b8501a;z-index:3}
+.net{left:42px;top:70px;width:66px;height:56px;z-index:2;transform-origin:top;clip-path:polygon(0 0,100% 0,82% 100%,18% 100%);background:repeating-linear-gradient(45deg,transparent 0 6px,var(--ink) 6px 8px),repeating-linear-gradient(-45deg,transparent 0 6px,var(--ink) 6px 8px)}
+.hoop.dunk::after{content:"🏀";position:absolute;left:55px;top:0;font-size:2rem;line-height:1;z-index:1;animation:dk 1s forwards}
+.hoop.dunk .net{animation:sw .5s .45s}
+.gl{color:#d49a00;font-size:1.2rem}
+body.goldr{box-shadow:inset 0 0 70px 14px #ffd93d}
+body.goldr #app{background:linear-gradient(120deg,transparent 40%,rgba(255,217,61,.4) 50%,transparent 60%);background-size:300% 100%;animation:shim 2.2s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:-100% 0}}
+.gw{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle,#fff6b0,#ffc83d 60%,#e69a00);overflow:hidden;text-align:center;padding:20px}
+.gw h1{color:#fff;font-size:2.6rem;text-shadow:0 4px 0 rgba(0,0,0,.25)}.gw p{color:#5a3a00;font-size:1.3rem;margin:0}
+.gw .stk{font-size:8rem;animation:pop .8s cubic-bezier(.3,1.8,.5,1);filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
+.gw i{position:absolute;top:-10%;font-style:normal;animation:fall 3s linear infinite}
+@keyframes fall{to{transform:translateY(120vh) rotate(360deg)}}
+.coach{font-size:3rem;animation:bn .5s 3}
+.clk{font-size:1.7rem;background:#222;color:#ffd93d;padding:2px 20px;border-radius:10px;font-family:"Courier New",monospace;letter-spacing:3px}
+.hoop.sw .net{animation:sw .5s}.free .bl{z-index:4}.free .bl.ok{background:none;border:0}
+@keyframes dk{0%{transform:translate(55px,-8px)}45%{transform:translate(0,40px)}100%{transform:translate(0,96px)}}
+@keyframes sw{50%{transform:scale(1.2,1.12)}}
+.arena{width:100%}.court{width:100%;position:relative;border-radius:22px;background:linear-gradient(#e9a867,#d98b45);padding:14px}
+.court.free,.court.whistle{display:flex;justify-content:space-around;gap:6px;padding:20px 6px}
+.court.steal{height:270px;overflow:hidden}
+.bl{background:none;font-size:3.6rem;position:relative;width:96px;height:96px;border-radius:50%}
+.bl span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff;text-shadow:0 2px 2px #000,0 0 4px #000}
+.steal .bl{position:absolute;left:0;top:calc(var(--i)*84px);animation:run 6s linear infinite;animation-delay:calc(var(--i)*-2.2s)}
+@keyframes run{from{transform:translateX(-100px)}to{transform:translateX(560px)}}
+.ball{font-size:5.5rem;background:none;position:relative;animation:bn .8s ease-in-out infinite}
+.ball em{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:2.2rem;color:#fff;font-style:normal;text-shadow:0 2px 3px #000}
+.ball.gold{filter:sepia(1) saturate(6) hue-rotate(-12deg) brightness(1.2) drop-shadow(0 0 12px gold)}
+@keyframes bn{0%,100%{transform:translateY(0)}50%{transform:translateY(-34px)}}
+.yn .opt{font-size:3rem}
+.pr{display:inline-flex;align-items:flex-end;justify-content:center;gap:.15em;font-size:.85em}.pr.tr{font-size:.55em}
+.pr i{display:flex;flex-direction:column;align-items:center;font-style:normal;line-height:1.1}
+.pr u{text-decoration:none;font-size:.5em;line-height:1}.pr s{display:inline-block;text-decoration:none}
+.f{transform:scaleX(1.6);margin:0 .25em}.n{transform:scaleX(.55);margin:0 -.1em}.sm{font-size:.6em}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.cd{background:var(--card);border-radius:18px;padding:10px 4px;font-size:2.2rem;box-shadow:0 4px 0 rgba(0,0,0,.15)}
+.cd small{display:block;font-size:.8rem}.cd.lk{opacity:.45}
+.win{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:20px;text-align:center;background:linear-gradient(135deg,#ff6b9d,#ffd93d,#6bcf7f,#4dabf7,#b57cff);background-size:400% 400%;animation:bg 4s linear infinite;z-index:5}
+@keyframes bg{50%{background-position:100% 100%}}
+.win h1{color:#fff;font-size:2.6rem;text-shadow:0 4px 0 rgba(0,0,0,.25)}
+.win .card{background:#fff;color:#3a2412;border-radius:28px;padding:24px 40px;font-size:6rem;animation:pop .8s cubic-bezier(.3,1.8,.5,1);display:flex;flex-direction:column}
+.win .card b{font-size:1.8rem}
+@keyframes pop{from{transform:scale(0) rotate(-20deg)}}
+@media (prefers-reduced-motion:reduce){.hero,.ball,.win,.gw i,body.goldr #app{animation:none}}
+</style></head><body><div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Configure these with your Supabase project values before deploying.
+const SUPABASE_URL = "https://buqvqpvuuoajmiynfsjl.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_6XAXS38hJ_Ert5aawCxS_w_igT6g0WP";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let dbUser = null, profile = null, activities = [], stickerRows = [], levels = [];
+const BONUS_TYPE = { free_throw:"free", steal_the_ball:"steal", referees_call:"ref", slam_dunk_spelling:"dunk", coaches_whistle:"whistle" };
+let D={};
+let ALL=[];
+const pr=(a,b,t,c)=>`<span class="pr ${c||""}">${[a,b].map((x,i)=>`<i>${i==t?"<u>⬇️</u>":""}${x}</i>`).join("")}</span>`;
+const M="🧍",sl=`<s class=n>${M}</s>`,fa=`<s class=f>${M}</s>`,sm=`<s class=sm>${M}</s>`;
+// Legacy illustration fallbacks. When pic_type/pic_data are populated, DB data takes precedence.
+const PIC={fat:pr(sl,fa,1),thin:pr(sl,fa,0),tall:pr(M,sm,0),short:pr(M,sm,1),big:pr("🐘","🐭",0),small:pr("🐘","🐭",1),
+long:pr("🚃🚃","🚃",0,"tr"),happy:pr("😀","😢",0),sad:pr("😀","😢",1),hot:pr("🥵","🥶",0),cold:pr("🥵","🥶",1),
+good:pr("👍","👎",0),bad:pr("👍","👎",1),new:pr("👶","🧓",0),old:pr("👶","🧓",1)};
+const cardPic = row => {
+  const d = row.pic_data || {};
+
+  if (d.left && d.right) {
+    if (
+  ["normal", "short", "fat", "thin"].includes(d.left) &&
+  ["normal", "short", "fat", "thin"].includes(d.right)
+) {
+      const person = value => {
+        if (value === "normal") return M;
+        if (value === "short") return sm;
+        if (value === "fat") return fa;
+        if (value === "thin") return sl;
+        return value;
+      };
+
+      return pr(
+        person(d.left),
+        person(d.right),
+        d.correct === "right" ? 1 : 0
+      );
+    }
+
+    return pr(
+      d.left,
+      d.right,
+      d.correct === "right" ? 1 : 0,
+      row.pic_type === "train_length" ? "tr" : ""
+    );
+  }
+
+  return row.pic_type && PIC[row.word]
+    ? PIC[row.word]
+    : (row.emoji || "❔");
+};
+let S={p:{},g:0,st:{}};
+const save=async()=>{
+  if(!dbUser||!profile)return;
+  try {
+    const cardRows=ALL.filter(w=>S.p[w.w]).map(w=>{const p=S.p[w.w];return {user_id:profile.id,card_id:w.id,sessions_complete:p.n||0,correct_streak:p.s||0,is_mastered:!!p.m};});
+    if(cardRows.length){const {error}=await sb.from("fact_user_cards").upsert(cardRows,{onConflict:"user_id,card_id"});if(error)throw error;}
+    const stickerCounts=stickerRows.filter(x=>(S.st[x.emoji]||0)>0).map(x=>({user_id:profile.id,sticker_id:x.id,sticker_count:S.st[x.emoji]}));
+    if(stickerCounts.length){const {error}=await sb.from("fact_user_stickers").upsert(stickerCounts,{onConflict:"user_id,sticker_id"});if(error)throw error;}
+    const {error}=await sb.from("dim_users").update({gold_stars:S.g}).eq("id",profile.id);if(error)throw error;
+  } catch(e){console.error("Could not save progress to Supabase:",e);showError("Progress could not be saved. Check your connection and database policies.");}
+};
+const P=w=>S.p[w]||(S.p[w]={n:0,s:0,m:0});
+const $=q=>document.querySelector(q),app=$("#app"),view=h=>{app.innerHTML=h;app.style.pointerEvents=""};
+const sh=a=>[...a].sort(()=>Math.random()-.5);
+const say=t=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.8;speechSynthesis.speak(u)}catch(e){}};
+let AC;const ac=()=>AC||(AC=new(window.AudioContext||window.webkitAudioContext)());
+function tone(f,d,t){try{const c=ac(),o=c.createOscillator(),g=c.createGain();o.type=t||"sine";o.frequency.value=f;g.gain.setValueAtTime(.2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(e){}}
+const whistle=()=>{tone(2700,.12,"triangle");setTimeout(()=>tone(2900,.12,"triangle"),130);setTimeout(()=>tone(2700,.35,"triangle"),270)};
+const ding=()=>{tone(660,.12);setTimeout(()=>tone(880,.2),110)},buzz=()=>tone(160,.25,"sawtooth");
+function clap(){try{const c=ac();for(let i=0;i<9;i++)setTimeout(()=>{const n=c.sampleRate*.09,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);for(let j=0;j<n;j++)d[j]=(Math.random()*2-1)*Math.pow(1-j/n,3);const s=c.createBufferSource();s.buffer=b;const g=c.createGain();g.gain.value=.7;s.connect(g);g.connect(c.destination);s.start()},i*170)}catch(e){}}
+const pool=()=>{const p=cur.ws.concat(cur.rv);return p.length>=4?p:p.concat(sh(ALL.filter(x=>!p.includes(x))))};
+let STK=[];
+const pickSt=()=>{S.st=S.st||{};const own=STK.filter(x=>!S.st[x]),e=sh(own.length?own:STK)[0];if(e)S.st[e]=(S.st[e]||0)+1;return e||"🏆"};
+const goldFan=()=>[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,.25,"triangle"),i*130));
+function gstart(){document.body.classList.add("goldr");goldFan();const c=app.querySelector(".c");if(c){const d=document.createElement("div");d.className="gl";d.textContent="⭐ Golden round! ⭐";c.prepend(d)}}
+function goldWin(e,cb){document.body.classList.remove("goldr");clap();goldFan();
+const cf=Array.from({length:26},(_,i)=>`<i style="left:${Math.random()*100}%;animation-delay:${Math.random()*2}s;font-size:${1+Math.random()*1.6}rem">${["✨","⭐","🏀","🎉","🟡"][i%5]}</i>`).join("");
+const o=document.createElement("div");o.className="gw";o.innerHTML=`${cf}<div class=stk>${e}</div><h1>Golden Round!</h1><p>+1 ⭐ and a new sticker!</p><button class=big>Keep playing</button>`;
+document.body.appendChild(o);o.querySelector("button").onclick=()=>{o.remove();cb()}}
+const opts=(w,n)=>sh([w,...sh(pool().filter(x=>x!=w)).slice(0,n-1)]);
+
+function home(){document.body.classList.remove("goldr");const m=ALL.filter(w=>P(w.w).m).length;
+view(`<div class=c><div class=hero>🦁</div><h1>Word Safari</h1><p>Cards ${m} / ${ALL.length} &nbsp; ⭐ ${S.g}</p><button class=big id=pl>Play</button><button class="big alt" id=cl>My cards</button><button class="big alt" id=sk>My stickers</button><button class="big alt" id=out>Sign out</button></div>`);
+$("#pl").onclick=start;$("#cl").onclick=coll;$("#sk").onclick=stks;$("#out").onclick=async()=>{await save();await sb.auth.signOut();}}
+function stks(){view(`<div class=top><span id=bk>←</span><h2>My stickers</h2></div><p>Win Golden Rounds to collect them all!</p><div class=grid>${STK.map(e=>S.st&&S.st[e]?`<div class=cd>${e}<small>x${S.st[e]}</small></div>`:`<div class="cd lk">❓<small>&nbsp;</small></div>`).join("")}</div>`);$("#bk").onclick=home}
+function coll(){view(`<div class=top><span id=bk>←</span><h2>My cards</h2></div><div class=grid>${ALL.map(w=>{const p=P(w.w);return p.m?`<div class=cd>${w.p}<small>${w.w}</small></div>`:`<div class="cd lk">🔒<small>${p.s}/5</small></div>`}).join("")}</div>`);$("#bk").onclick=home}
+
+let Q,qi,cur;
+function start(){
+const un=ALL.filter(w=>!P(w.w).m),prog=un.filter(w=>P(w.w).n),near=sh(prog.filter(w=>P(w.w).s>=4)),
+ip=near.concat(sh(prog.filter(w=>P(w.w).s<4))).slice(0,Math.max(3,Math.min(near.length,4)));
+const fr=sh([...new Set(ALL.map(w=>w.k))]).map(k=>un.find(w=>w.k==k&&!P(w.w).n)).filter(Boolean);
+const ws=ip.concat(fr.slice(0,Math.max(1,4-ip.length)).filter(Boolean));
+const rv=sh(ALL.filter(w=>P(w.w).m)).slice(0,ws.length?1:4);
+cur={ws,err:{},rv};const ph=t=>sh(ws).map(w=>({w,t}));
+Q=[...ph("L"),...sh(ws).flatMap(w=>[{w,t:"T"},{w,t:"S"}]),...rv.flatMap(w=>[{w,t:"L"},{w,t:"T"}]),...ph("X")];qi=0;step()}
+const nx=()=>{qi++;step()};
+function step(){document.body.classList.remove("goldr");if(qi>=Q.length)return fin();const q=Q[qi];
+const hd=`<div class=top><span id=x>✕</span><div class=pb><i style="width:${qi/Q.length*100}%"></i></div></div>`;
+({L:xl,T:xt,S:q=>xs(q,hd),X:xx})[q.t](q,hd);const x=$("#x");if(x)x.onclick=home}
+function ans(ok,el,w,cb){if(ok){ding();el.classList.add("ok");app.style.pointerEvents="none";setTimeout(cb||nx,800)}
+else{buzz();cur.err[w.w]=1;el.classList.remove("no");void el.offsetWidth;el.classList.add("no")}}
+const TM='<div class=tm><i></i></div>';
+function xl(q,hd){const w=q.w,o=opts(w,4);
+view(hd+`<div class=c>${TM}<button class=spk>🔊</button><p>Listen. Tap the word.</p><div class=opts>${o.map(x=>`<button class=opt>${x.w}</button>`).join("")}</div></div>`);
+$(".spk").onclick=()=>say(w.w);say(w.w);
+app.querySelectorAll(".opt").forEach((b,i)=>b.onclick=()=>ans(o[i]==w,b,w))}
+function xt(q,hd){const w=q.w,o=opts(w,4);
+view(hd+`<div class=c>${TM}<h2 class=word>${w.w.toUpperCase()}</h2><div class=opts>${o.map(x=>`<button class="opt pic">${x.p}</button>`).join("")}</div></div>`);
+say(w.w);app.querySelectorAll(".opt").forEach((b,i)=>b.onclick=()=>ans(o[i]==w,b,w))}
+
+function xs(q,hd,dunk,cb){const w=q.w,L=w.w.replace(" ","").split("");let pos=0,er=0,gd=0,used=[];
+const ex=sh("aeioutnrsldm".split("")).filter(c=>!L.includes(c)).slice(0,2);
+const T=sh([...L,...ex]);
+function draw(){view(hd+`<div class=c>${dunk?'<div class=hoop><i class=bb></i><i class=rim></i><i class=net></i></div><h2>Slam Dunk Spelling!</h2>':'<h2>Spell it!</h2>'}<div class=pic>${w.p}</div><button class=spk>🔊</button><div class=slots>${L.map((c,i)=>`<b>${i<pos?c:""}</b>`).join("")}</div><div class=opts style="grid-template-columns:repeat(4,1fr)">${T.map((c,j)=>`<button class="opt tl" ${used.includes(j)?"disabled":""}>${c}</button>`).join("")}</div>${gd?"<p>Listen to each letter 👂</p>":""}</div>`);
+$(".spk").onclick=()=>say(w.w);
+app.querySelectorAll(".tl").forEach((b,j)=>b.onclick=()=>{
+if(T[j]==L[pos]){pos++;used.push(j);tone(700,.08);
+if(pos==L.length){draw();ding();const h=$(".hoop");if(h)h.classList.add("dunk");app.style.pointerEvents="none";setTimeout(cb||nx,1100);return}
+draw();if(gd)say(L[pos])}
+else{cur.err[w.w]=1;buzz();er++;if(er>=5&&!gd){gd=1;pos=0;used=[]}else if(!gd){pos=0;used=[]}
+draw();if(gd)say(L[pos])}});
+if(gd&&pos==0)say(L[0])}
+draw();say(w.w)}
+
+function xx(q,hd){const w=q.w,gold=Math.random()<.2,themeBonuses=activities.filter(a=>a.theme_activity===profile.theme_id),bonusNames=themeBonuses.map(a=>a.name).filter(n=>BONUS_TYPE[n]),ty=cur.ty||(cur.ty=BONUS_TYPE[sh(bonusNames.length?bonusNames:Object.keys(BONUS_TYPE))[0]]);
+const done=()=>{if(gold){S.g++;const e=pickSt();save();goldWin(e,nx)}else nx()};
+const run=()=>{
+if(ty=="dunk")return xs(q,hd,1,done);
+if(ty=="ref"){const t=Math.random()<.5,x=t?w:sh(pool().filter(y=>y!=w))[0];
+view(hd+`<div class=c><h2>Referee's Call!</h2><div class=pic>${w.p}</div><h2 class=word>${x.w.toUpperCase()}</h2><p>Is it right?</p><div class="opts yn"><button class=opt>✅</button><button class=opt>❌</button></div></div>`);
+say(x.w);const b=app.querySelectorAll(".opt");b[0].onclick=()=>ans(t,b[0],w,done);b[1].onclick=()=>ans(!t,b[1],w,done);return}
+let live=1;const o=opts(w,3),T={free:"Free Throw!",steal:"Steal the Ball!",whistle:"Coach's Whistle!"}[ty];
+view(hd+`<div class="c arena"><h2>${T}</h2>${ty=="free"?"<div class=hoop><i class=bb></i><i class=rim></i><i class=net></i></div>":""}${ty=="whistle"?`<div class=coach>🧑‍🏫📣</div><div class=pic>${w.p}</div><div class=clk>10</div><p>What is it? Tap the word before the clock ends!</p>`:"<button class=spk>🔊</button>"}<div class="court ${ty}">${o.map((x,i)=>`<button class=bl style="--i:${i}">🏀<span>${x.w}</span></button>`).join("")}</div></div>`);
+const s=$(".spk");if(s){s.onclick=()=>say(w.w);say(w.w)}
+if(ty=="whistle"){let n=10;const c=$(".clk");whistle();const iv=setInterval(()=>{if(!c.isConnected||!live)return clearInterval(iv);n--;c.textContent=n;if(n<=0){whistle();n=10;c.textContent="Time! 10";setTimeout(()=>{if(c.isConnected&&live)c.textContent=10},900)}},1000)}
+app.querySelectorAll(".bl").forEach((b,i)=>b.onclick=()=>{const ok=o[i]==w;if(ok)live=0;
+if(ty=="free"){const r=$(".rim").getBoundingClientRect(),g=b.getBoundingClientRect(),dx=r.left+r.width/2-g.left-g.width/2,dy=r.top+r.height/2-g.top-g.height/2;
+if(ok){b.style.zIndex=9;b.animate([{transform:"none"},{transform:`translate(${dx*.6}px,${dy-70}px) scale(.7)`,offset:.55},{transform:`translate(${dx}px,${dy+14}px) scale(.4)`}],{duration:900,easing:"ease-out",fill:"forwards"});setTimeout(()=>{$(".hoop").classList.add("sw");ding()},700)}
+else b.animate([{transform:"none"},{transform:`translate(${dx*.7}px,${dy*.8}px) scale(.6)`},{transform:"none"}],{duration:600})}
+ans(ok,b,w,ok&&ty=="free"?()=>setTimeout(done,500):done)})};
+if(cur.sd){run();if(gold)gstart()}
+else{cur.sd=1;view(hd+`<div class=c><h2>A surprise!</h2><p>Tap the ball</p><button class="ball${gold?" gold":""}" id=sb>🏀<em>?</em></button></div>`);$("#sb").onclick=()=>{ding();run();if(gold)gstart()}}}
+
+function fin(){const ul=[];cur.ws.forEach(w=>{const p=P(w.w);p.n++;if(!cur.err[w.w])p.s++;if(p.s>=5&&!p.m){p.m=1;ul.push(w)}});save();unl(ul)}
+function unl(ul){if(!ul.length)return end();const w=ul.shift();clap();
+view(`<div class=win><div class=card>${w.p}<b>${w.w}</b></div><h1>Ori Is The King!!!</h1><button class=big>Next</button></div>`);$(".win button").onclick=()=>unl(ul)}
+function end(){view(`<div class=c><div class=hero>🎉</div><h2>Great job!</h2>${cur.ws.map(w=>`<p>${w.p} ${w.w} &nbsp;${"●".repeat(Math.min(P(w.w).s,5))}${"○".repeat(5-Math.min(P(w.w).s,5))}</p>`).join("")}<button class=big id=a>Start another session</button><button class="big alt" id=b>That's all for now</button></div>`);$("#a").onclick=start;$("#b").onclick=home}
+
+function showError(message){let el=$("#db-error");if(!el){el=document.createElement("p");el.id="db-error";el.style.cssText="color:#b42318;font-size:.95rem;max-width:100%;overflow-wrap:anywhere";app.prepend(el);}el.textContent=message;}
+// Supabase Auth requires an email or phone. This app maps each username to a
+// synthetic email address; disable email confirmations in Supabase Auth settings.
+const usernameToAuthEmail = username => `${username.trim().toLowerCase()}@word-safari-login.com`;
+const validUsername = username => /^[a-zA-Z0-9_.-]{3,24}$/.test(username);
+function authScreen(message="Sign in with your username and password"){
+  document.body.classList.remove("goldr");
+  view(`<div class="c"><div class="hero">🦁</div><h1>Word Safari</h1><p>${message}</p><form id="auth-form" style="width:100%;display:grid;gap:12px"><input id="username" type="text" autocomplete="username" placeholder="Username (3–24 characters)" minlength="3" maxlength="24" required pattern="[A-Za-z0-9_.-]{3,24}" style="padding:14px;border-radius:14px;border:2px solid #d8c6a8;font:inherit"><input id="password" type="password" autocomplete="current-password" placeholder="Password (at least 6 characters)" minlength="6" required style="padding:14px;border-radius:14px;border:2px solid #d8c6a8;font:inherit"><button class="big" type="submit">Sign in</button><button class="big alt" type="button" id="signup">Create account</button></form><p style="font-size:.85rem;font-weight:500">Usernames may contain letters, numbers, dots, dashes and underscores. Ask your parent to keep your username and password safe.</p></div>`);
+  $("#auth-form").onsubmit=async e=>{
+    e.preventDefault();
+    const username=$("#username").value.trim().toLowerCase(),password=$("#password").value;
+    if(!validUsername(username)){showError("Use 3–24 letters, numbers, dots, dashes or underscores for your username.");return;}
+    const {error}=await sb.auth.signInWithPassword({email:usernameToAuthEmail(username),password});
+    if(error)showError("Sign-in failed. Check your username and password.");else await init();
+  };
+  $("#signup").onclick=async()=>{
+    const username=$("#username").value.trim().toLowerCase(),password=$("#password").value;
+    if(!validUsername(username)){showError("Choose a username with 3–24 letters, numbers, dots, dashes or underscores.");return;}
+    if(password.length<6){showError("Choose a password with at least 6 characters.");return;}
+    const {data,error}=await sb.auth.signUp({
+  email: usernameToAuthEmail(username),
+  password,
+  options: {
+    data: {
+      username,
+      learner_name: username
+    }
+  }
+});
+    if(error){showError(error.message.includes("already registered")||error.message.includes("already been registered")?"That username may already be taken. Try another one.":error.message);return;}
+    if(!data.session){showError("Account created, but Supabase requires email confirmation. Disable Confirm email in Supabase Auth settings for this username-only login setup, then try again.");return;}
+    await init();
+  };
+}
+async function loadAppData(){
+
+const {data:sessionData,error:sessionError}=await sb.auth.getSession();
+if(sessionError) throw sessionError;
+
+if(!sessionData.session){
+  dbUser=null;
+  profile=null;
+  authScreen();
+  return false;
+}
+
+const {data:authData,error:authError}=await sb.auth.getUser();
+if(authError) throw authError;
+dbUser=authData.user;
+
+if(!dbUser){
+  authScreen();
+  return false;
+}
+
+  const {data:themes,error:themeErr}=await sb.from("dim_themes").select("id,name");if(themeErr)throw themeErr;
+  const basketball=(themes||[]).find(t=>t.name.toLowerCase()==="basketball");
+  let {data:profiles,error:profileErr}=await sb.from("dim_users").select("*").eq("auth_user_id",dbUser.id).limit(1);if(profileErr)throw profileErr;
+  profile=profiles&&profiles[0];
+  if(!profile){const {data:created,error:createErr}=await sb.from("dim_users").insert({auth_user_id:dbUser.id,name:dbUser.user_metadata?.learner_name||dbUser.user_metadata?.username||"Learner",username:dbUser.user_metadata?.username||dbUser.email?.split("@")[0]||"learner",theme_id:basketball?.id??null,card_level:1,activity_level:1,gold_stars:0}).select("*").single();if(createErr)throw createErr;profile=created;}
+  const [cardRes,activityRes,stickerRes,progressRes,stickerProgressRes,levelRes]=await Promise.all([
+    sb.from("dim_cards").select("id,word,emoji,category,level,pic_type,pic_data").order("id"),
+    sb.from("dim_activities").select("id,name,start_level,end_level,theme_activity").order("id"),
+    sb.from("dim_stickers").select("id,name,emoji").order("id"),
+    sb.from("fact_user_cards").select("card_id,sessions_complete,correct_streak,is_mastered").eq("user_id",profile.id),
+    sb.from("fact_user_stickers").select("sticker_id,sticker_count").eq("user_id",profile.id),
+    sb.from("dim_levels").select("id,name").order("id")
+  ]);
+  for(const r of [cardRes,activityRes,stickerRes,progressRes,stickerProgressRes,levelRes])if(r.error)throw r.error;
+  activities=activityRes.data||[];stickerRows=stickerRes.data||[];levels=levelRes.data||[];
+  ALL=(cardRes.data||[]).filter(c=>!c.level||!profile.card_level||c.level<=profile.card_level).map(c=>({id:c.id,w:c.word,p:cardPic(c),k:c.category||"general",level:c.level,pic_type:c.pic_type,pic_data:c.pic_data}));
+  if(!ALL.length)throw new Error("No vocabulary cards were returned from dim_cards. Seed dim_cards first and ensure the authenticated user can read it.");
+  D={};ALL.forEach(c=>{D[c.k]=true;});
+  S={p:{},g:profile.gold_stars||0,st:{}};
+  const cardById=new Map(ALL.map(c=>[String(c.id),c]));
+  (progressRes.data||[]).forEach(r=>{const c=cardById.get(String(r.card_id));if(c)S.p[c.w]={n:r.sessions_complete||0,s:r.correct_streak||0,m:r.is_mastered?1:0};});
+  const stickerById=new Map(stickerRows.map(x=>[String(x.id),x]));
+  (stickerProgressRes.data||[]).forEach(r=>{const st=stickerById.get(String(r.sticker_id));if(st)S.st[st.emoji]=r.sticker_count||0;});
+  STK=stickerRows.map(x=>x.emoji).filter(Boolean);
+  if(!STK.length)STK=["🏆","🥇","👑","🏀","🔥","🏅","🎯","💎"];
+  return true;
+}
+async function init(){
+  try{if(SUPABASE_URL.startsWith("YOUR_")||SUPABASE_ANON_KEY.startsWith("YOUR_")){authScreen("Add your Supabase URL and anon key in the HTML first.");return;}const ready=await loadAppData();if(ready)home();}
+  catch(e){console.error(e);authScreen("Could not load Word Safari from the database.");showError(e.message||"Database connection failed. Check Supabase settings, schema and RLS policies.");}
+}
+sb.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"){dbUser=null;profile=null;authScreen();}});
+init();
+</script></body></html>
